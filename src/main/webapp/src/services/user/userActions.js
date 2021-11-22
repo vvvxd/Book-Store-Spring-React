@@ -1,15 +1,10 @@
 import * as UT from "./userTypes";
-import axios from "axios";
-
-const REGISTER_URL = "http://localhost:8081/rest/user/register";
+import {usersAPI} from '../../api/api';
 
 export const fetchUsers = () => {
   return (dispatch) => {
     dispatch(userRequest());
-    axios
-      .get(
-        "https://randomapi.com/api/6de6abfedb24f889e0b5f675edc50deb?fmt=raw&sole"
-      )
+      usersAPI.fetchUsers()
       .then((response) => {
         dispatch(userSuccess(response.data));
       })
@@ -22,7 +17,7 @@ export const fetchUsers = () => {
 export const registerUser = (userObject) => async (dispatch) => {
   dispatch(userRequest());
   try {
-    const response = await axios.post(REGISTER_URL, userObject);
+    const response = await usersAPI.registerUser(userObject);
     dispatch(userSavedSuccess(response.data));
     return Promise.resolve(response.data);
   } catch (error) {

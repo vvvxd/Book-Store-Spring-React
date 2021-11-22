@@ -1,21 +1,25 @@
 import * as BT from "./bookTypes";
-import axios from "axios";
+import {BookAPI} from '../../api/api';
+
+export const setLoaded = (payload) => ({
+  type: BT.SET_LOADED,
+  payload,
+});
 
 export const saveBook = (book) => {
   return (dispatch) => {
     dispatch({
       type: BT.SAVE_BOOK_REQUEST,
     });
-    axios
-      .post("http://localhost:8081/rest/books/save", book)
-      .then((response) => {
-        console.log(response);
-        dispatch(bookSuccess(response.data));
-      })
-      .catch((error) => {
-        console.log(error);
-        dispatch(bookFailure(error));
-      });
+    BookAPI.saveBook(book)
+    .then((response) => {
+      console.log(response);
+      dispatch(bookSuccess(response.data));
+    })
+    .catch((error) => {
+      console.log(error);
+      dispatch(bookFailure(error));
+    });
   };
 };
 
@@ -24,14 +28,13 @@ export const fetchBook = (bookId) => {
     dispatch({
       type: BT.FETCH_BOOK_REQUEST,
     });
-    axios
-      .get("http://localhost:8081/rest/books/" + bookId)
-      .then((response) => {
-        dispatch(bookSuccess(response.data));
-      })
-      .catch((error) => {
-        dispatch(bookFailure(error));
-      });
+    BookAPI.fetchBook(bookId)
+    .then((response) => {
+      dispatch(bookSuccess(response.data));
+    })
+    .catch((error) => {
+      dispatch(bookFailure(error));
+    });
   };
 };
 
@@ -40,14 +43,13 @@ export const updateBook = (book) => {
     dispatch({
       type: BT.UPDATE_BOOK_REQUEST,
     });
-    axios
-      .put("http://localhost:8081/rest/books/update", book)
-      .then((response) => {
-        dispatch(bookSuccess(response.data));
-      })
-      .catch((error) => {
-        dispatch(bookFailure(error));
-      });
+    BookAPI.updateBook(book)
+    .then((response) => {
+      dispatch(bookSuccess(response.data));
+    })
+    .catch((error) => {
+      dispatch(bookFailure(error));
+    });
   };
 };
 
@@ -56,14 +58,13 @@ export const deleteBook = (bookId) => {
     dispatch({
       type: BT.DELETE_BOOK_REQUEST,
     });
-    axios
-      .delete("http://localhost:8081/rest/books/" + bookId)
-      .then((response) => {
-        dispatch(bookSuccess(response.data));
-      })
-      .catch((error) => {
-        dispatch(bookFailure(error));
-      });
+    BookAPI.deleteBook(bookId)
+    .then((response) => {
+      dispatch(bookSuccess(response.data));
+    })
+    .catch((error) => {
+      dispatch(bookFailure(error));
+    });
   };
 };
 
@@ -86,20 +87,19 @@ export const fetchLanguages = () => {
     dispatch({
       type: BT.FETCH_LANGUAGES_REQUEST,
     });
-    axios
-      .get("http://localhost:8081/rest/books/languages")
-      .then((response) => {
-        dispatch({
-          type: BT.LANGUAGES_SUCCESS,
-          payload: response.data,
-        });
-      })
-      .catch((error) => {
-        dispatch({
-          type: BT.LANGUAGES_FAILURE,
-          payload: error,
-        });
+    BookAPI.fetchLanguages()
+    .then((response) => {
+      dispatch({
+        type: BT.LANGUAGES_SUCCESS,
+        payload: response.data,
       });
+    })
+    .catch((error) => {
+      dispatch({
+        type: BT.LANGUAGES_FAILURE,
+        payload: error,
+      });
+    });
   };
 };
 
@@ -108,19 +108,18 @@ export const fetchTypes = () => {
     dispatch({
       type: BT.FETCH_TYPES_REQUEST,
     });
-    axios
-      .get("http://localhost:8081/rest/books/types")
-      .then((response) => {
-        dispatch({
-          type: BT.TYPES_SUCCESS,
-          payload: response.data,
-        });
-      })
-      .catch((error) => {
-        dispatch({
-          type: BT.TYPES_FAILURE,
-          payload: error,
-        });
+    BookAPI.fetchTypes()
+    .then((response) => {
+      dispatch({
+        type: BT.TYPES_SUCCESS,
+        payload: response.data,
       });
+    })
+    .catch((error) => {
+      dispatch({
+        type: BT.TYPES_FAILURE,
+        payload: error,
+      });
+    });
   };
 };

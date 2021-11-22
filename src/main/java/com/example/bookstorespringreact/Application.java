@@ -46,11 +46,11 @@ public class Application implements CommandLineRunner {
 		User user1 = new User();
 		if (userService.findAll().isEmpty()) {
 
-			user1.setEmail("test@user.com");
+			user1.setEmail("reader");
 			user1.setName("Test User");
 			user1.setMobile("9787456545");
 			user1.setRole(roleService.findByName(ConstantUtils.USER.toString()));
-			user1.setPassword(new BCryptPasswordEncoder().encode("testuser"));
+			user1.setPassword(new BCryptPasswordEncoder().encode("admin"));
 			userService.saveOrUpdate(user1);
 
 
@@ -70,7 +70,7 @@ public class Application implements CommandLineRunner {
 				book.setCoverPhotoURL(
 						"https://images-na.ssl-images-amazon.com/images/I/417zLTa1uqL._SX397_BO1,204,203,200_.jpg");
 				book.setPrice(2776.00 + i);
-				book.setYearOfReading("2012");
+				book.setYearOfReading("201" + i);
 				book.setLanguage("English");
 				book.setType("Audio");
 				book.setUser("3");

@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface Resource<T> {
 	@GetMapping("/search/{searchText}")
-	ResponseEntity<Page<T>> findAll(Pageable pageable, @PathVariable String searchText,@PathVariable String user);
+	ResponseEntity<Page<T>> findAll(Pageable pageable, @PathVariable String searchText, String user);
 
 	@GetMapping
-	ResponseEntity<Page<T>> findAll(int pageNumber, int pageSize,@PathVariable String user);
+	ResponseEntity<Page<T>> findAll(int pageNumber, int pageSize, String user);
 
 	@GetMapping("/{id}")
 	ResponseEntity<T> findById(@PathVariable Long id);

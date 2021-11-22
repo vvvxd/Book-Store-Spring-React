@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import {deleteBook} from "../../services/index";
 
 import "./../../assets/css/Style.css";
-import {Button, ButtonGroup, Card, FormControl, Image, InputGroup, Table,} from "react-bootstrap";
+import {Alert, Button, ButtonGroup, Card, FormControl, Image, InputGroup, Table,} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
   faEdit,
@@ -20,6 +20,7 @@ import {
 import {Link} from "react-router-dom";
 import MyToast from "../MyToast";
 import axios from "axios";
+import {BookAPI} from '../../api/api';
 
 class BookList extends Component {
   constructor(props) {
@@ -32,13 +33,24 @@ class BookList extends Component {
       sortDir: "asc",
     };
   }
+   compareAsc=(a, b)=> {
+    if (Number(a.yearOfReading )> Number(b.yearOfReading )) return 1;
+    if (Number(a.yearOfReading ) == Number(b.yearOfReading )) return 0;
+    if (Number(a.yearOfReading ) < Number(b.yearOfReading )) return -1;
+  }
+  compareDesc=(a, b)=> {
+    if (Number(a.yearOfReading )< Number(b.yearOfReading )) return 1;
+    if (Number(a.yearOfReading ) == Number(b.yearOfReading )) return 0;
+    if (Number(a.yearOfReading ) > Number(b.yearOfReading )) return -1;
+  }
   
   sortData = () => {
     setTimeout(() => {
-      this.state.sortDir === "asc"
-        ? this.setState({sortDir: "desc"})
-        : this.setState({sortDir: "asc"});
-      this.findAllBooks(this.state.currentPage);
+      if(this.state.sortDir === "asc"){
+        this.setState({sortDir: "desc",books:this.state.books.sort(this.compareDesc)});
+      }else{
+        this.setState({sortDir: "asc",books:this.state.books.sort(this.compareAsc)});
+      }
     }, 500);
   };
   
@@ -48,17 +60,7 @@ class BookList extends Component {
   
   findAllBooks(currentPage) {
     currentPage -= 1;
-    axios
-    .get(
-      "http://localhost:8081/rest/books?pageNumber=" +
-      currentPage +
-      "&pageSize=" +
-      this.state.booksPerPage +
-      "&sortBy=price&sortDir=" +
-      this.state.sortDir +
-      "&user=" +
-      this.props.auth.id
-    )
+    BookAPI.findAllBooks(currentPage,this.state.booksPerPage,this.props.auth.id)
     .then((response) => response.data)
     .then((data) => {
       console.log(data);
@@ -71,8 +73,8 @@ class BookList extends Component {
     })
     .catch((error) => {
       console.log(error);
-      localStorage.removeItem("jwtToken");
-      this.props.history.push("/");
+      // localStorage.removeItem("jwtToken");
+      // this.props.history.push("/");
     });
   }
   
@@ -160,17 +162,7 @@ class BookList extends Component {
   
   searchData = (currentPage) => {
     currentPage -= 1;
-    axios
-    .get(
-      "http://localhost:8081/rest/books/search/" +
-      this.state.search +
-      "?page=" +
-      currentPage +
-      "&size=" +
-      this.state.booksPerPage +
-      "&user=" +
-      this.props.auth.id
-    )
+    BookAPI.searchData(this.state.search,currentPage,this.state.booksPerPage,this.props.auth.id)
     .then((response) => response.data)
     .then((data) => {
       this.setState({
@@ -194,164 +186,169 @@ class BookList extends Component {
             type={"danger"}
           />
         </div>
-        <Card className={"border border-dark bg-dark text-white"}>
-          <Card.Header>
-            <div style={{float: "left"}}>
-              <FontAwesomeIcon icon={faList}/> Book List
-            </div>
-            <div style={{float: "right"}}>
-              <InputGroup size="sm">
-                <FormControl
-                  placeholder="Search"
-                  name="search"
-                  value={search}
-                  className={"info-border bg-dark text-white"}
-                  onChange={this.searchChange}
-                />
-                <InputGroup.Append>
-                  <Button
-                    size="sm"
-                    variant="outline-info"
-                    type="button"
-                    onClick={this.searchData}
-                  >
-                    <FontAwesomeIcon icon={faSearch}/>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    type="button"
-                    onClick={this.cancelSearch}
-                  >
-                    <FontAwesomeIcon icon={faTimes}/>
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
-            </div>
-          </Card.Header>
-          <Card.Body>
-            <Table bordered hover striped variant="dark">
-              <thead>
-              <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Year Of Reading</th>
-                <th onClick={this.sortData}>
-                  Price{" "}
-                  <div
-                    className={
-                      this.state.sortDir === "asc"
-                        ? "arrow arrow-up"
-                        : "arrow arrow-down"
-                    }
-                  >
-                    {" "}
-                  </div>
-                </th>
-                <th>Language</th>
-                <th>Type</th>
-                <th>Actions</th>
-              </tr>
-              </thead>
-              <tbody>
-              {books.length === 0 ? (
-                <tr align="center">
-                  <td colSpan="7">No Books Available.</td>
-                </tr>
-              ) : (
-                books.map((book) => (
-                  <tr key={book.id}>
-                    <td>
-                      <Image
-                        src={book.coverPhotoURL}
-                        roundedCircle
-                        width="25"
-                        height="25"
-                      />{" "}
-                      {book.title}
-                    </td>
-                    <td>{book.author}</td>
-                    <td>{book.yearOfReading}</td>
-                    <td>{book.price}</td>
-                    <td>{book.language}</td>
-                    <td>{book.type}</td>
-                    <td>
-                      <ButtonGroup>
-                        <Link
-                          to={"edit/" + book.id}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          <FontAwesomeIcon icon={faEdit}/>
-                        </Link>{" "}
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          onClick={() => this.deleteBook(book.id)}
-                        >
-                          <FontAwesomeIcon icon={faTrash}/>
-                        </Button>
-                      </ButtonGroup>
-                    </td>
-                  </tr>
-                ))
-              )}
-              </tbody>
-            </Table>
-          </Card.Body>
-          {books.length > 0 ? (
-            <Card.Footer>
+        {!!this.props.auth.isLoggedIn
+          ?
+          <Card className={"border border-dark bg-dark text-white"}>
+            <Card.Header>
               <div style={{float: "left"}}>
-                Showing Page {currentPage} of {totalPages}
+                <FontAwesomeIcon icon={faList}/> Book List
               </div>
               <div style={{float: "right"}}>
                 <InputGroup size="sm">
-                  <InputGroup.Prepend>
-                    <Button
-                      type="button"
-                      variant="outline-info"
-                      disabled={currentPage === 1 ? true : false}
-                      onClick={this.firstPage}
-                    >
-                      <FontAwesomeIcon icon={faFastBackward}/> First
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline-info"
-                      disabled={currentPage === 1 ? true : false}
-                      onClick={this.prevPage}
-                    >
-                      <FontAwesomeIcon icon={faStepBackward}/> Prev
-                    </Button>
-                  </InputGroup.Prepend>
                   <FormControl
-                    className={"page-num bg-dark"}
-                    name="currentPage"
-                    value={currentPage}
-                    onChange={this.changePage}
+                    placeholder="Search"
+                    name="search"
+                    value={search}
+                    className={"info-border bg-dark text-white"}
+                    onChange={this.searchChange}
                   />
                   <InputGroup.Append>
                     <Button
-                      type="button"
+                      size="sm"
                       variant="outline-info"
-                      disabled={currentPage === totalPages ? true : false}
-                      onClick={this.nextPage}
+                      type="button"
+                      onClick={this.searchData}
                     >
-                      <FontAwesomeIcon icon={faStepForward}/> Next
+                      <FontAwesomeIcon icon={faSearch}/>
                     </Button>
                     <Button
+                      size="sm"
+                      variant="outline-danger"
                       type="button"
-                      variant="outline-info"
-                      disabled={currentPage === totalPages ? true : false}
-                      onClick={this.lastPage}
+                      onClick={this.cancelSearch}
                     >
-                      <FontAwesomeIcon icon={faFastForward}/> Last
+                      <FontAwesomeIcon icon={faTimes}/>
                     </Button>
                   </InputGroup.Append>
                 </InputGroup>
               </div>
-            </Card.Footer>
-          ) : null}
-        </Card>
+            </Card.Header>
+            <Card.Body>
+              <Table bordered hover striped variant="dark">
+                <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th onClick={this.sortData}>
+                    Year Of Reading{" "}
+                    <div
+                      className={
+                        this.state.sortDir === "asc"
+                          ? "arrow arrow-up"
+                          : "arrow arrow-down"
+                      }
+                    >
+                      {" "}
+                    </div>
+                  </th>
+                  <th>Price</th>
+                  <th>Language</th>
+                  <th>Type</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {books.length === 0 ? (
+                  <tr align="center">
+                    <td colSpan="7">No Books Available.</td>
+                  </tr>
+                ) : (
+                  books.map((book) => (
+                    <tr key={book.id}>
+                      <td>
+                        <Image
+                          src={book.coverPhotoURL}
+                          roundedCircle
+                          width="25"
+                          height="25"
+                        />{" "}
+                        {book.title}
+                      </td>
+                      <td>{book.author}</td>
+                      <td>{book.yearOfReading}</td>
+                      <td>{book.price}</td>
+                      <td>{book.language}</td>
+                      <td>{book.type}</td>
+                      <td>
+                        <ButtonGroup>
+                          <Link
+                            to={"edit/" + book.id}
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            <FontAwesomeIcon icon={faEdit}/>
+                          </Link>{" "}
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => this.deleteBook(book.id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash}/>
+                          </Button>
+                        </ButtonGroup>
+                      </td>
+                    </tr>
+                  ))
+                )}
+                </tbody>
+              </Table>
+            </Card.Body>
+            {books.length > 0 ? (
+              <Card.Footer>
+                <div style={{float: "left"}}>
+                  Showing Page {currentPage} of {totalPages}
+                </div>
+                <div style={{float: "right"}}>
+                  <InputGroup size="sm">
+                    <InputGroup.Prepend>
+                      <Button
+                        type="button"
+                        variant="outline-info"
+                        disabled={currentPage === 1 ? true : false}
+                        onClick={this.firstPage}
+                      >
+                        <FontAwesomeIcon icon={faFastBackward}/> First
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline-info"
+                        disabled={currentPage === 1 ? true : false}
+                        onClick={this.prevPage}
+                      >
+                        <FontAwesomeIcon icon={faStepBackward}/> Prev
+                      </Button>
+                    </InputGroup.Prepend>
+                    <FormControl
+                      className={"page-num bg-dark"}
+                      name="currentPage"
+                      value={currentPage}
+                      onChange={this.changePage}
+                    />
+                    <InputGroup.Append>
+                      <Button
+                        type="button"
+                        variant="outline-info"
+                        disabled={currentPage === totalPages ? true : false}
+                        onClick={this.nextPage}
+                      >
+                        <FontAwesomeIcon icon={faStepForward}/> Next
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline-info"
+                        disabled={currentPage === totalPages ? true : false}
+                        onClick={this.lastPage}
+                      >
+                        <FontAwesomeIcon icon={faFastForward}/> Last
+                      </Button>
+                    </InputGroup.Append>
+                  </InputGroup>
+                </div>
+              </Card.Footer>
+            ) : null}
+          </Card>
+          : <Alert style={{backgroundColor: "#343A40", color: "#ffffff80"}}>
+              Please login
+            </Alert>}
       </div>
     );
   }

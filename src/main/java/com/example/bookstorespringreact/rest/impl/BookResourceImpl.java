@@ -52,6 +52,7 @@ public class BookResourceImpl implements Resource<Book> {
 	}
 
 	@Override
+	@CrossOrigin
 	public ResponseEntity<Book> update(@RequestBody Book book) {
 		return new ResponseEntity<>(bookService.saveOrUpdate(book), HttpStatus.OK);
 	}

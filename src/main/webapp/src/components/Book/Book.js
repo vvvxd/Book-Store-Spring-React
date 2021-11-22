@@ -36,54 +36,59 @@ class Book extends Component {
       this.findBookById(bookId);
     }
     this.findAllLanguages();
-    this.findAllTypes();
   }
   
   findAllLanguages = () => {
     this.props.fetchLanguages();
-    let bookLanguages = this.props.bookObject.languages;
-    if (bookLanguages) {
-      this.setState({
-        languages: [{value: "", display: "Select Language"}].concat(
-          bookLanguages.map((language) => {
-            return {value: language, display: language};
-          })
-        ),
-      });
-    }
+    setTimeout(() => {
+      let bookLanguages = this.props.bookObject.languages;
+      if (bookLanguages) {
+        this.setState({
+          languages: [{ value: "", display: "Select Language" }].concat(
+            bookLanguages.map((language) => {
+              return { value: language, display: language };
+            })
+          ),
+        });
+        this.findAllTypes();
+      }
+    }, 100);
   };
   
   findAllTypes = () => {
     this.props.fetchTypes();
-    let bookTypes = this.props.bookObject.types;
-    console.log(bookTypes);
-    if (bookTypes) {
-      this.setState({
-        types: [{value: "", display: "Select Type"}].concat(
-          bookTypes.map((types) => {
-            return {value: types, display: types};
-          })
-        ),
-      });
-    }
+    setTimeout(() => {
+      let bookGenres = this.props.bookObject.types;
+      if (bookGenres) {
+        this.setState({
+          types: [{ value: "", display: "Select Type" }].concat(
+            bookGenres.map((types) => {
+              return { value: types, display: types };
+            })
+          ),
+        });
+      }
+    }, 100);
   };
   
   findBookById = (bookId) => {
     this.props.fetchBook(bookId);
-    let book = this.props.bookObject.book;
-    if (book != null) {
-      this.setState({
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        coverPhotoURL: book.coverPhotoURL,
-        yearOfReading: book.yearOfReading,
-        price: book.price,
-        language: book.language,
-        type: book.type,
-        user: book.user,
-      });
-    }
+    setTimeout(() => {
+      let book = this.props.bookObject.book;
+      if (book != null) {
+        this.setState({
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          coverPhotoURL: book.coverPhotoURL,
+          yearOfReading: book.yearOfReading,
+          price: book.price,
+          language: book.language,
+          type: book.type,
+          user: book.user,
+        });
+      }
+    }, 1000);
   };
   
   resetBook = () => {
@@ -105,12 +110,14 @@ class Book extends Component {
     };
     console.log(book);
     this.props.saveBook(book);
-    if (this.props.bookObject.book != null) {
-      this.setState({show: true, method: "post"});
-      setTimeout(() => this.setState({show: false}), 3000);
-    } else {
-      this.setState({show: false});
-    }
+    setTimeout(() => {
+      if (this.props.bookObject.book != null) {
+        this.setState({ show: true, method: "post" });
+        setTimeout(() => this.setState({ show: false }), 3000);
+      } else {
+        this.setState({ show: false });
+      }
+    }, 2000);
     this.setState(this.initialState);
   };
   
@@ -129,12 +136,14 @@ class Book extends Component {
       user: this.props.auth.id,
     };
     this.props.updateBook(book);
-    if (this.props.bookObject.book != null) {
-      this.setState({show: true, method: "put"});
-      setTimeout(() => this.setState({show: false}), 3000);
-    } else {
-      this.setState({show: false});
-    }
+    setTimeout(() => {
+      if (this.props.bookObject.book != null) {
+        this.setState({ show: true, method: "put" });
+        setTimeout(() => this.setState({ show: false }), 3000);
+      } else {
+        this.setState({ show: false });
+      }
+    }, 2000);
     this.setState(this.initialState);
   };
   
@@ -270,7 +279,7 @@ class Book extends Component {
                       value={language}
                       className={"bg-dark text-white"}
                     >
-                      {this.state.languages.map((language) => (
+                      {this.state.types.map((language) => (
                         <option key={language.value} value={language.value}>
                           {language.display}
                         </option>
@@ -288,7 +297,7 @@ class Book extends Component {
                       value={type}
                       className={"bg-dark text-white"}
                     >
-                      {this.state.types.map((genre) => (
+                      {this.state.languages.map((genre) => (
                         <option key={genre.value} value={genre.value}>
                           {genre.display}
                         </option>
@@ -329,6 +338,8 @@ const mapStateToProps = (state) => {
   return {
     bookObject: state.book,
     auth: state.auth,
+    types: state.types,
+    languages: state.languages,
   };
 };
 

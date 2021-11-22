@@ -1,15 +1,13 @@
 import * as AT from "./authTypes";
 import axios from "axios";
+import {usersAPI} from '../../../api/api';
 
 const AUTH_URL = "http://localhost:8081/rest/user/authenticate";
 
 export const authenticateUser = (email, password) => async (dispatch) => {
   dispatch(loginRequest());
   try {
-    const response = await axios.post(AUTH_URL, {
-      email: email,
-      password: password,
-    });
+    const response = await usersAPI.auth(email,password);
     localStorage.setItem("jwtToken", response.data.token);
     dispatch(success({
       username: response.data.name,
