@@ -44,7 +44,7 @@ class Book extends Component {
       let bookLanguages = this.props.bookObject.languages;
       if (bookLanguages) {
         this.setState({
-          languages: [{ value: "", display: "Select Language" }].concat(
+          languages: [{ value: "", display: "Select Type" }].concat(
             bookLanguages.map((language) => {
               return { value: language, display: language };
             })
@@ -61,7 +61,7 @@ class Book extends Component {
       let bookGenres = this.props.bookObject.types;
       if (bookGenres) {
         this.setState({
-          types: [{ value: "", display: "Select Type" }].concat(
+          types: [{ value: "", display: "Select Language" }].concat(
             bookGenres.map((types) => {
               return { value: types, display: types };
             })
